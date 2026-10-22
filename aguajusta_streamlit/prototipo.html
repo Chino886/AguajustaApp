@@ -1,33 +1,37 @@
 <title>Prototipo AguaJusta</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap">
 <style>
-/* Layout: app de celular centrada; encabezado fijo arriba, pestañas abajo. Letra Atkinson Hyperlegible por usuarios con baja alfabetización digital. */
+/* Layout: app de celular centrada; colores de la presentación AguaJusta (azules de agua y rosado de la gotita). */
 :root{
-  --bg:#E9F0EE; --surface:#FFFFFF; --sunk:#F3F7F6; --ink:#0F2A33; --muted:#566C74; --line:#D3DEDB;
-  --water:#1567A3; --water-soft:#DCEBF6; --leaf:#3B8655; --leaf-soft:#E0F0E5; --ochre:#B07D22; --ochre-soft:#F6ECD7;
-  --ok:#2F7D4A; --warn:#A8690F; --bad:#B83A33; --bad-soft:#F8E1DF;
-  --wa:#1F8F55; --wa-bg:#E7F3EC;
-  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --bg:#F2F9FD; --surface:#FFFFFF; --sunk:#EAF4FB; --ink:#1D3F5C; --muted:#5E7A91; --line:#D4E6F3;
+  --water:#2E78B0; --water-soft:#DCEEFA; --sky:#5DA9DF; --head:#2E78B0; --pink:#F49BA6; --pink-soft:#FDE8EB;
+  --leaf:#3E9A6A; --leaf-soft:#E1F3E9; --ochre:#D79A2B; --ochre-soft:#FBF0DA;
+  --ok:#2F8A5B; --warn:#B07612; --bad:#C2464F; --bad-soft:#FBE3E5;
+  --wa:#1F8F55; --wa-bg:#E7F5EC;
+  --display:"Open Sans", "Segoe UI", system-ui, sans-serif;
+  --body:"Open Sans", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0A171C; --surface:#11252C; --sunk:#0D1E24; --ink:#E3EDEF; --muted:#94AAB0; --line:#22404A;
-  --water:#62AEE4; --water-soft:#163447; --leaf:#6EC28B; --leaf-soft:#173527; --ochre:#E2B057; --ochre-soft:#3A2D14;
-  --ok:#6EC28B; --warn:#E2B057; --bad:#EE7A72; --bad-soft:#3D1D1B; --wa:#5FCB91; --wa-bg:#14302A; color-scheme:dark}}
+  --bg:#0C1A26; --surface:#13273A; --sunk:#0F2131; --ink:#E2EEF7; --muted:#97B1C6; --line:#24405A;
+  --water:#6DB6E8; --water-soft:#16354D; --sky:#4C93C7; --head:#1E5E8F; --pink:#F49BA6; --pink-soft:#3E2229;
+  --leaf:#6CC897; --leaf-soft:#173A2A; --ochre:#E8B45A; --ochre-soft:#3A2D14;
+  --ok:#6CC897; --warn:#E8B45A; --bad:#F07F86; --bad-soft:#3E1D21; --wa:#5FCB91; --wa-bg:#14302A; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0A171C; --surface:#11252C; --sunk:#0D1E24; --ink:#E3EDEF; --muted:#94AAB0; --line:#22404A;
-  --water:#62AEE4; --water-soft:#163447; --leaf:#6EC28B; --leaf-soft:#173527; --ochre:#E2B057; --ochre-soft:#3A2D14;
-  --ok:#6EC28B; --warn:#E2B057; --bad:#EE7A72; --bad-soft:#3D1D1B; --wa:#5FCB91; --wa-bg:#14302A; color-scheme:dark}
+  --bg:#0C1A26; --surface:#13273A; --sunk:#0F2131; --ink:#E2EEF7; --muted:#97B1C6; --line:#24405A;
+  --water:#6DB6E8; --water-soft:#16354D; --sky:#4C93C7; --head:#1E5E8F; --pink:#F49BA6; --pink-soft:#3E2229;
+  --leaf:#6CC897; --leaf-soft:#173A2A; --ochre:#E8B45A; --ochre-soft:#3A2D14;
+  --ok:#6CC897; --warn:#E8B45A; --bad:#F07F86; --bad-soft:#3E1D21; --wa:#5FCB91; --wa-bg:#14302A; color-scheme:dark}
 
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--water)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head)}
 .app{max-width:440px;margin:0 auto;min-height:100%;background:var(--bg);display:flex;flex-direction:column;position:relative}
 @media (min-width:600px){.app{margin-block:24px;min-height:calc(100% - 48px);border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:0 20px 50px rgba(10,40,50,.12)}}
 
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--water);color:#fff;
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--head);color:#fff;overflow:hidden;
+  background-image:radial-gradient(circle at 92% -10%, rgba(255,255,255,.18) 0 46px, transparent 47px),radial-gradient(circle at 74% 120%, rgba(255,255,255,.12) 0 30px, transparent 31px);
   padding-block:14px 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .brand{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
@@ -41,8 +45,31 @@ main{flex:1;display:flex;flex-direction:column;gap:14px;padding-block:16px 96px;
 h2{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.1;margin:4px 0 0;text-wrap:balance}
 h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0;text-wrap:balance}
 .sub{color:var(--muted);margin:0}
-.label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.label{font-size:13px;font-weight:600;color:var(--muted)}
+.card{background:var(--surface);border:0;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;box-shadow:0 2px 0 var(--line)}
+.why b,.legend-q{font-weight:700}
+
+/* Inicio de sesión */
+.auth{min-height:100%;display:flex;flex-direction:column;align-items:center;background:var(--bg);position:relative;overflow:hidden;
+  padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.auth::before,.auth::after{content:"";position:absolute;border-radius:50%;background:var(--sky);opacity:.85;z-index:0}
+.auth::before{width:220px;height:220px;top:-90px;left:-80px}
+.auth::after{width:160px;height:160px;bottom:-60px;right:-50px}
+.auth-box{position:relative;z-index:1;width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px}
+.auth-hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.auth-hero h1{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;color:var(--water);margin:0;letter-spacing:-.01em}
+.auth-hero p{margin:0;color:var(--muted)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk);border-radius:14px;padding:4px}
+.seg button{border:0;background:transparent;font:700 14px var(--body);color:var(--muted);padding:10px;border-radius:10px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--water);box-shadow:0 1px 3px rgba(30,70,110,.15)}
+.notice{border-radius:12px;padding:10px 12px;font-size:14px}
+.notice.no{background:var(--pink-soft);color:var(--bad)}
+.notice.si{background:var(--water-soft);color:var(--water)}
+.small{font-size:12px;color:var(--muted);text-align:center;margin:0}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.logout{border:0;background:rgba(255,255,255,.16);color:#fff;font:600 12px var(--body);padding:6px 10px;border-radius:999px;cursor:pointer}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:360px){.two{grid-template-columns:1fr}}
 .num{font-variant-numeric:tabular-nums}
 
 .status{display:flex;gap:12px;align-items:center}
@@ -59,7 +86,7 @@ h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0;text-wrap:
 .why b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.mini{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.mini{background:var(--surface);border:0;box-shadow:0 2px 0 var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .mini .big{font-family:var(--display);font-weight:800;font-size:26px;line-height:1}
 .mini .big small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted)}
 
@@ -133,16 +160,51 @@ nav.tabs button[aria-current="page"]{color:var(--water)}
 @media (prefers-reduced-motion:no-preference){main>*{animation:in .25s ease-out both}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
 </style>
 
-<div class="app">
+<section class="auth" id="auth">
+  <div class="auth-box">
+    <div class="auth-hero">
+      <svg width="78" height="92" viewBox="0 0 78 92" aria-hidden="true">
+        <path d="M39 4C24 26 8 44 8 60a31 31 0 0 0 62 0C70 44 54 26 39 4Z" fill="#7FB6EA"/>
+        <path d="M54 34c6 8 9 14 9 20" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".7"/>
+        <circle cx="28" cy="62" r="4.5" fill="#173A63"/><circle cx="50" cy="62" r="4.5" fill="#173A63"/>
+        <circle cx="29.5" cy="60.5" r="1.4" fill="#fff"/><circle cx="51.5" cy="60.5" r="1.4" fill="#fff"/>
+        <ellipse cx="21" cy="70" rx="5" ry="3.2" fill="#F49BA6"/><ellipse cx="57" cy="70" rx="5" ry="3.2" fill="#F49BA6"/>
+        <path d="M35 69q4 4 8 0" stroke="#173A63" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <h1>Agua Justa</h1>
+      <p>El agua de tu vereda, mejor cuidada entre todos.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Entrar o registrarse">
+      <button id="m-in" aria-pressed="true">Iniciar sesión</button>
+      <button id="m-up" aria-pressed="false">Crear cuenta</button>
+    </div>
+    <form class="card" id="f-auth" novalidate>
+      <div class="field" id="w-nombre" hidden><label for="a-nombre">Nombre completo</label><input type="text" id="a-nombre" value="Wilmar Ramírez" autocomplete="name"></div>
+      <div class="field"><label for="a-correo">Correo</label><input type="text" id="a-correo" value="wilmar.ramirez@correo.com" autocomplete="email" inputmode="email"></div>
+      <div class="field"><label for="a-clave">Clave</label><input type="password" id="a-clave" value="agua2026" autocomplete="current-password"></div>
+      <div class="field"><label for="a-depto">Departamento</label><select id="a-depto"></select></div>
+      <div class="field" id="w-muni" hidden><label for="a-muni">Municipio</label><select id="a-muni"><option>El Carmen de Viboral</option><option>Rionegro</option><option>La Ceja</option><option>El Retiro</option><option>Guarne</option><option>Marinilla</option><option>San Vicente Ferrer</option><option>La Unión</option></select></div>
+      <div class="notice si" id="dep-msg">Antioquia tiene AguaJusta disponible.</div>
+      <p class="sub" id="a-err" style="color:var(--bad);font-size:14px" hidden></p>
+      <button class="btn" type="submit" id="a-btn">Entrar</button>
+      <p class="small">Prototipo: cualquier correo y clave funcionan.</p>
+    </form>
+  </div>
+</section>
+
+<div class="app" id="app" hidden>
   <header class="top">
     <div class="top-row">
       <div>
-        <div class="brand"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C8 7.5 5.5 11 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 11 16 7.5 12 2.5Z" fill="#fff"/><path d="M9 15a3 3 0 0 0 3 3" stroke="#1567A3" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>AguaJusta</div>
+        <div class="brand"><svg width="24" height="28" viewBox="0 0 78 92" aria-hidden="true"><path d="M39 4C24 26 8 44 8 60a31 31 0 0 0 62 0C70 44 54 26 39 4Z" fill="#fff"/><circle cx="28" cy="62" r="5" fill="#2E78B0"/><circle cx="50" cy="62" r="5" fill="#2E78B0"/><ellipse cx="21" cy="71" rx="5" ry="3.4" fill="#F49BA6"/><ellipse cx="57" cy="71" rx="5" ry="3.4" fill="#F49BA6"/></svg>Agua Justa</div>
         <div class="where" id="where">Vereda El Porvenir · El Carmen de Viboral</div>
       </div>
-      <div class="role" role="group" aria-label="Tipo de usuario">
-        <button id="role-fam" aria-pressed="true">Familia</button>
-        <button id="role-jaav" aria-pressed="false">Junta</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="role" role="group" aria-label="Tipo de usuario">
+          <button id="role-fam" aria-pressed="true">Familia</button>
+          <button id="role-jaav" aria-pressed="false">Junta</button>
+        </div>
+        <button class="logout" id="logout">Cerrar sesión</button>
       </div>
     </div>
   </header>
@@ -210,7 +272,10 @@ const I = {
 const ic = (k,extra="") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${I[k]}</svg>`;
 
 // ---------- Estado ----------
+D.usuario.nombreCompleto = "Wilmar Ramírez";
 let rol = "fam", tab = "inicio", filtro = "Todos", abierta = -1, enviado = null, alertaPub = null, lecturaOk = null;
+let tieneTanque = true, solicitud = null, modo = "in";
+const DEPTOS = ["Amazonas","Antioquia","Arauca","Archipiélago de San Andrés","Atlántico","Bogotá D.C.","Bolívar","Boyacá","Caldas","Caquetá","Casanare","Cauca","Cesar","Chocó","Córdoba","Cundinamarca","Guainía","Guaviare","Huila","La Guajira","Magdalena","Meta","Nariño","Norte de Santander","Putumayo","Quindío","Risaralda","Santander","Sucre","Tolima","Valle del Cauca","Vaupés","Vichada"];
 const TABS = {
   fam:[["inicio","Inicio","home"],["consumo","Consumo","chart"],["tanques","Tanques","tank"],["aprende","Aprende","book"],["reportar","Reportar","alert"]],
   jaav:[["panel","Panel","gauge"],["lecturas","Lecturas","chart"],["cortes","Cortes","clock"],["alertas","Alertas","megaphone"],["reportes","Reportes","inbox"]]
@@ -286,8 +351,38 @@ function consumo(){
 
 function tanques(){
   const t=D.tanque, L=t.capacidad*t.nivel/100, dias=Math.floor(L/220);
+  const sel=`<div class="seg" role="group" aria-label="¿Tiene tanque?"><button data-tq="si" aria-pressed="${tieneTanque}">Ya tengo tanque</button><button data-tq="no" aria-pressed="${!tieneTanque}">No tengo tanque</button></div>`;
+  if(!tieneTanque){
+    if(solicitud) return `
+    <div><span class="label">Cosecha de agua lluvia</span><h2>Solicitud enviada</h2></div>${sel}
+    <div class="toast">Su solicitud ${solicitud.id} llegó a la alcaldía de ${solicitud.muni}. Le avisaremos por WhatsApp cuando agenden la visita técnica.</div>
+    <div class="card"><h3>Datos enviados</h3><div class="list">
+      <div class="row"><div class="l"><b>${solicitud.nombre}</b><small>C.C. ${solicitud.cc} · ${solicitud.tel}</small></div></div>
+      <div class="row"><div class="l"><b>${solicitud.finca}</b><small>${solicitud.dir} · ${solicitud.vereda}, ${solicitud.muni}</small></div></div>
+    </div></div>
+    <div class="card"><h3>Lo que sigue</h3><ol class="steps">${["Solicitud enviada","Visita técnica a la finca","Aprobación de la alcaldía","Instalación del sistema","Primera cosecha de lluvia"].map((p,i)=>`<li class="${i===0?"done":i===1?"now":""}"><span class="mk">${i===0?"✓":i+1}</span><div><b>${p}</b></div></li>`).join("")}</ol></div>`;
+    return `
+    <div><span class="label">Cosecha de agua lluvia</span><h2>Pida su tanque</h2></div>${sel}
+    <p class="sub">Solo necesitamos sus datos y la dirección de la finca. La alcaldía revisa la solicitud y agenda una visita.</p>
+    <form class="card" id="f-tq">
+      <h3>Sus datos</h3>
+      <div class="field"><label for="tq-nombre">Nombre completo</label><input type="text" id="tq-nombre" value="${D.usuario.nombreCompleto}"></div>
+      <div class="two">
+        <div class="field"><label for="tq-cc">Cédula</label><input type="text" id="tq-cc" value="1036 482 917" inputmode="numeric"></div>
+        <div class="field"><label for="tq-tel">Celular</label><input type="text" id="tq-tel" value="312 456 7890" inputmode="tel"></div>
+      </div>
+      <h3 style="margin-top:6px">Dirección de la finca</h3>
+      <div class="field"><label for="tq-finca">Nombre de la finca</label><input type="text" id="tq-finca" value="Finca La Palma"></div>
+      <div class="two">
+        <div class="field"><label for="tq-muni">Municipio</label><select id="tq-muni"><option>El Carmen de Viboral</option><option>Rionegro</option><option>La Ceja</option><option>El Retiro</option><option>Guarne</option><option>Marinilla</option><option>San Vicente Ferrer</option><option>La Unión</option></select></div>
+        <div class="field"><label for="tq-vereda">Vereda</label><input type="text" id="tq-vereda" value="El Porvenir"></div>
+      </div>
+      <div class="field"><label for="tq-dir">Dirección o indicaciones</label><textarea id="tq-dir">Km 4 vía El Carmen – La Chapa, entrada después de la escuela, portón verde.</textarea></div>
+      <button class="btn" type="submit">Enviar solicitud</button>
+    </form>`;
+  }
   return `
-  <div><span class="label">Cosecha de agua lluvia</span><h2>Mis tanques</h2></div>
+  <div><span class="label">Cosecha de agua lluvia</span><h2>Mis tanques</h2></div>${sel}
   <div class="card">
     <div class="tank">
       <div class="tank-vis" aria-hidden="true"><span style="height:${t.nivel}%"></span></div>
@@ -300,7 +395,7 @@ function tanques(){
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3>Trámite con la alcaldía</h3><span class="pill info">Paso 3 de 5</span></div>
     <ol class="steps">${D.tramite.map((p,i)=>`<li class="${p.s}"><span class="mk">${p.s==="done"?"✓":i+1}</span><div><b>${p.t}</b><div class="d">${p.d}</div></div></li>`).join("")}</ol>
   </div>
-  <div class="card"><h3>¿Un vecino quiere su tanque?</h3><p class="sub">La solicitud se hace desde la app y la alcaldía responde por aquí mismo. El programa se apoya en recursos de Cornare, la Gobernación y BanCO2.</p><button class="btn ghost" style="align-self:flex-start" data-msg="Solicitud de ejemplo creada">Iniciar nueva solicitud</button></div>`;
+  <div class="card"><h3>¿Un vecino quiere su tanque?</h3><p class="sub">La solicitud se hace desde la app y la alcaldía responde por aquí mismo. El programa se apoya en recursos de Cornare, la Gobernación y BanCO2.</p><button class="btn ghost" style="align-self:flex-start" data-tq="no">Iniciar nueva solicitud</button></div>`;
 }
 
 function aprende(){
@@ -416,17 +511,50 @@ document.addEventListener("click",e=>{
   else if(b.dataset.l){ const i=+b.dataset.l; abierta = abierta===i?-1:i; render(); }
   else if(b.dataset.msg){ b.textContent=b.dataset.msg; b.disabled=true; }
 });
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-tq]"); if(!b) return;
+  tieneTanque = b.dataset.tq==="si"; render(); window.scrollTo(0,0);
+});
 document.addEventListener("submit",e=>{
   e.preventDefault();
   if(e.target.id==="f-rep"){ const tipo=document.querySelector('input[name=tipo]:checked').value; enviado="R-0253";
     D.reportes.unshift({id:enviado,tipo,lugar:$("#lugar").value,f:"hoy",e:"Recibido"}); render(); }
   if(e.target.id==="f-al"){ alertaPub=true; render(); }
   if(e.target.id==="f-lec"){ lecturaOk=$("#med").value.split(" · ")[1]; render(); }
+  if(e.target.id==="f-tq"){ const v=id=>$("#"+id).value.trim();
+    solicitud={id:"ALC-2026-"+(1200+Math.floor(Math.random()*90)),nombre:v("tq-nombre"),cc:v("tq-cc"),tel:v("tq-tel"),finca:v("tq-finca"),muni:v("tq-muni"),vereda:v("tq-vereda"),dir:v("tq-dir")};
+    render(); window.scrollTo(0,0); }
 });
 $("#role-fam").onclick=()=>{rol="fam";go("inicio")};
 $("#role-jaav").onclick=()=>{rol="jaav";go("panel")};
 
-const h=location.hash.slice(1);
-if(V[h]){ rol = TABS.jaav.some(t=>t[0]===h) ? "jaav" : "fam"; tab=h; }
-render();
+// ---------- Inicio de sesión (simulado) ----------
+$("#a-depto").innerHTML = `<option value="" disabled>Elija su departamento</option>` + DEPTOS.map(d=>`<option ${d==="Antioquia"?"selected":""}>${d}</option>`).join("");
+function checkDepto(){
+  const d=$("#a-depto").value, ok=d==="Antioquia", m=$("#dep-msg");
+  m.className="notice "+(ok?"si":"no");
+  m.textContent = ok ? "Antioquia tiene AguaJusta disponible." : `AguaJusta todavía no está disponible en ${d}. Por ahora solo funciona en Antioquia, con el piloto del Oriente antioqueño.`;
+  $("#a-btn").disabled=!ok;
+}
+function setModo(m){
+  modo=m; $("#m-in").setAttribute("aria-pressed",m==="in"); $("#m-up").setAttribute("aria-pressed",m==="up");
+  $("#w-nombre").hidden = $("#w-muni").hidden = m==="in";
+  $("#a-btn").textContent = m==="in" ? "Entrar" : "Crear cuenta y entrar";
+  $("#a-err").hidden=true;
+}
+$("#m-in").onclick=()=>setModo("in"); $("#m-up").onclick=()=>setModo("up");
+$("#a-depto").onchange=checkDepto;
+$("#f-auth").onsubmit=e=>{
+  e.preventDefault();
+  const correo=$("#a-correo").value.trim(), clave=$("#a-clave").value, err=$("#a-err");
+  let msg="";
+  if(!/^\S+@\S+\.\S+$/.test(correo)) msg="Escriba un correo válido, por ejemplo nombre@correo.com.";
+  else if(clave.length<4) msg="La clave debe tener al menos 4 caracteres.";
+  else if(modo==="up" && !$("#a-nombre").value.trim()) msg="Escriba su nombre para crear la cuenta.";
+  if(msg){ err.textContent=msg; err.hidden=false; return; }
+  if(modo==="up"){ const n=$("#a-nombre").value.trim(); D.usuario.nombreCompleto=n; D.usuario.nombre=n.split(" ")[0]; }
+  $("#auth").hidden=true; $("#app").hidden=false; rol="fam"; go("inicio");
+};
+$("#logout").onclick=()=>{ $("#app").hidden=true; $("#auth").hidden=false; setModo("in"); window.scrollTo(0,0); };
+checkDepto();
 </script>
