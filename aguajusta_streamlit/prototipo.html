@@ -1,0 +1,432 @@
+<title>Prototipo AguaJusta</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: app de celular centrada; encabezado fijo arriba, pestañas abajo. Letra Atkinson Hyperlegible por usuarios con baja alfabetización digital. */
+:root{
+  --bg:#E9F0EE; --surface:#FFFFFF; --sunk:#F3F7F6; --ink:#0F2A33; --muted:#566C74; --line:#D3DEDB;
+  --water:#1567A3; --water-soft:#DCEBF6; --leaf:#3B8655; --leaf-soft:#E0F0E5; --ochre:#B07D22; --ochre-soft:#F6ECD7;
+  --ok:#2F7D4A; --warn:#A8690F; --bad:#B83A33; --bad-soft:#F8E1DF;
+  --wa:#1F8F55; --wa-bg:#E7F3EC;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A171C; --surface:#11252C; --sunk:#0D1E24; --ink:#E3EDEF; --muted:#94AAB0; --line:#22404A;
+  --water:#62AEE4; --water-soft:#163447; --leaf:#6EC28B; --leaf-soft:#173527; --ochre:#E2B057; --ochre-soft:#3A2D14;
+  --ok:#6EC28B; --warn:#E2B057; --bad:#EE7A72; --bad-soft:#3D1D1B; --wa:#5FCB91; --wa-bg:#14302A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A171C; --surface:#11252C; --sunk:#0D1E24; --ink:#E3EDEF; --muted:#94AAB0; --line:#22404A;
+  --water:#62AEE4; --water-soft:#163447; --leaf:#6EC28B; --leaf-soft:#173527; --ochre:#E2B057; --ochre-soft:#3A2D14;
+  --ok:#6EC28B; --warn:#E2B057; --bad:#EE7A72; --bad-soft:#3D1D1B; --wa:#5FCB91; --wa-bg:#14302A; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--water)}
+.app{max-width:440px;margin:0 auto;min-height:100%;background:var(--bg);display:flex;flex-direction:column;position:relative}
+@media (min-width:600px){.app{margin-block:24px;min-height:calc(100% - 48px);border:1px solid var(--line);border-radius:28px;overflow:hidden;box-shadow:0 20px 50px rgba(10,40,50,.12)}}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--water);color:#fff;
+  padding-block:14px 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand svg{flex:none}
+.where{font-size:13px;opacity:.9;margin-top:2px}
+.role{display:flex;background:rgba(255,255,255,.16);border-radius:999px;padding:3px}
+.role button{border:0;background:transparent;color:#fff;font:700 12px var(--body);padding:6px 11px;border-radius:999px;cursor:pointer}
+.role button[aria-pressed="true"]{background:#fff;color:#0F2A33}
+
+main{flex:1;display:flex;flex-direction:column;gap:14px;padding-block:16px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h2{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:0}
+.label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.num{font-variant-numeric:tabular-nums}
+
+.status{display:flex;gap:12px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 5px var(--leaf-soft);flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--leaf-soft);color:var(--ok)}
+.pill.warn{background:var(--ochre-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--water-soft);color:var(--water)}
+
+.cut{border-left:0;background:var(--ochre-soft);border-color:transparent}
+.cut .when{font-family:var(--display);font-weight:800;font-size:20px}
+.why{background:var(--surface);border-radius:12px;padding:10px 12px;font-size:14px}
+.why b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mini{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.mini .big{font-family:var(--display);font-weight:800;font-size:26px;line-height:1}
+.mini .big small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted)}
+
+.bar{height:10px;background:var(--sunk);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.bar>span{display:block;height:100%;background:var(--leaf);border-radius:999px}
+
+.tank{display:flex;gap:16px;align-items:center}
+.tank-vis{width:64px;height:84px;border:2px solid var(--water);border-radius:8px 8px 12px 12px;position:relative;overflow:hidden;flex:none;background:var(--sunk)}
+.tank-vis>span{position:absolute;inset:auto 0 0 0;background:var(--water);opacity:.85}
+
+.wa{background:var(--wa-bg);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line)}
+.wa-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;color:var(--wa)}
+.bubble{background:var(--surface);border-radius:4px 14px 14px 14px;padding:10px 12px;font-size:14px;max-width:92%;box-shadow:0 1px 0 var(--line)}
+.bubble .t{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font:11px var(--body)}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:12px;position:relative;padding-bottom:18px}
+.steps li:last-child{padding-bottom:0}
+.steps li::before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--line)}
+.steps li:last-child::before{display:none}
+.steps .mk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;border:2px solid var(--line);background:var(--surface);color:var(--muted);z-index:1}
+.steps li.done .mk{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.steps li.now .mk{border-color:var(--water);color:var(--water)}
+.steps li.done::before{background:var(--leaf)}
+.steps .d{font-size:13px;color:var(--muted)}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 13px var(--body);padding:7px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+.lesson{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px;cursor:pointer;text-align:left;color:inherit;font:inherit;width:100%}
+.thumb{width:64px;height:64px;border-radius:12px;display:grid;place-items:center;position:relative}
+.thumb svg{width:22px;height:22px}
+.lesson .meta{font-size:12px;color:var(--muted)}
+.lesson[aria-expanded="true"]{border-color:var(--water)}
+.lesson-body{grid-column:1/-1;font-size:14px;background:var(--sunk);border-radius:10px;padding:10px 12px}
+.lesson-body ol{margin:0;padding-left:18px}
+
+form{display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.legend-q{font-weight:700;font-size:14px}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%;box-sizing:border-box}
+textarea{min-height:76px;resize:vertical}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.types label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;font-weight:700;font-size:14px;cursor:pointer}
+.types input{accent-color:var(--water)}
+.types label:has(input:checked){border-color:var(--water);background:var(--water-soft)}
+.btn{border:0;background:var(--water);color:#fff;font:700 15px var(--body);padding:13px 16px;border-radius:12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--water);border:1px solid var(--water)}
+:is(button,input,select,textarea,.lesson):focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+
+.list{display:flex;flex-direction:column}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:0}
+.row .l{min-width:0}
+.row .l small{display:block;color:var(--muted);font-size:12px}
+
+.toast{background:var(--leaf-soft);color:var(--ok);border-radius:12px;padding:12px;font-weight:700;font-size:14px}
+
+nav.tabs{position:sticky;bottom:0;z-index:5;margin-top:auto;background:var(--surface);border-top:1px solid var(--line);display:grid;
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{border:0;background:transparent;color:var(--muted);font:700 11px var(--body);padding:10px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="page"]{color:var(--water)}
+.proto{text-align:center;font-size:11px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){main>*{animation:in .25s ease-out both}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <div class="brand"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C8 7.5 5.5 11 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 11 16 7.5 12 2.5Z" fill="#fff"/><path d="M9 15a3 3 0 0 0 3 3" stroke="#1567A3" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>AguaJusta</div>
+        <div class="where" id="where">Vereda El Porvenir · El Carmen de Viboral</div>
+      </div>
+      <div class="role" role="group" aria-label="Tipo de usuario">
+        <button id="role-fam" aria-pressed="true">Familia</button>
+        <button id="role-jaav" aria-pressed="false">Junta</button>
+      </div>
+    </div>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+</div>
+
+<script>
+// ---------- Datos de ejemplo (inventados para el prototipo) ----------
+const D = {
+  usuario:{nombre:"Wilmar", finca:"Finca La Palma", sector:"Sector Alto", medidor:"MED-0417"},
+  semana:[ // litros por día
+    {d:"Jue",dom:310,rie:520,gan:240},{d:"Vie",dom:295,rie:610,gan:250},{d:"Sáb",dom:340,rie:480,gan:245},
+    {d:"Dom",dom:360,rie:120,gan:230},{d:"Lun",dom:300,rie:690,gan:255},{d:"Mar",dom:290,rie:740,gan:260},{d:"Mié",dom:305,rie:880,gan:250}],
+  metaDia:1200,
+  vereda:{metaAhorro:15, logrado:9, familias:86},
+  tanque:{capacidad:2000, nivel:65, lluvia:"Lluvias moderadas el viernes y el sábado"},
+  tramite:[
+    {t:"Solicitud enviada",d:"2 de septiembre · Radicado ALC-CV-2026-1184",s:"done"},
+    {t:"Visita técnica a la finca",d:"18 de septiembre · Cornare y Secretaría de Agricultura",s:"done"},
+    {t:"Aprobación de la alcaldía",d:"En revisión desde el 6 de octubre",s:"now"},
+    {t:"Instalación del sistema",d:"Tanque de 2.000 L con canaleta y filtro",s:""},
+    {t:"Primera cosecha de lluvia",d:"Seguimiento del nivel desde la app",s:""}],
+  lecciones:[
+    {c:"Riego",t:"Riego por goteo con manguera perforada",m:"4 min · video",col:"leaf",
+     p:["Riegue antes de las 8 a.m. o después de las 5 p.m.","Use manguera de goteo en lugar de aspersor.","Revise que el suelo esté seco a 5 cm antes de regar."]},
+    {c:"Riego",t:"¿Cuánta agua necesita mi cultivo?",m:"3 min · guía",col:"leaf",
+     p:["Mora y aguacate necesitan menos agua en época de lluvia.","Anote cuántos minutos riega cada lote.","Compare con la tabla de su vereda en la app."]},
+    {c:"Fumigación",t:"Dosificar bien la bomba de espalda",m:"5 min · video",col:"ochre",
+     p:["Mida el agua con un balde marcado, no a ojo.","Prepare solo la mezcla que va a usar ese día.","Lave la bomba lejos de quebradas y nacimientos."]},
+    {c:"Ganado",t:"Bebederos con flotador para no rebosar",m:"4 min · video",col:"water",
+     p:["El flotador cierra el paso cuando el bebedero se llena.","Revise fugas en la manguera cada semana.","Ubique el bebedero a la sombra para que el agua dure fresca."]},
+    {c:"Agua lluvia",t:"Limpiar canaletas antes del invierno",m:"2 min · guía",col:"water",
+     p:["Retire hojas y barro de las canaletas cada mes.","Deje correr la primera lluvia fuera del tanque.","Tape el tanque para evitar zancudos."]},
+    {c:"Hogar",t:"Fugas que no se ven: la prueba del medidor",m:"3 min · guía",col:"ochre",
+     p:["Cierre todas las llaves de la casa.","Mire si el medidor sigue girando por 15 minutos.","Si gira, hay una fuga: repórtela en la app."]}],
+  reportes:[
+    {id:"R-0231",tipo:"Fuga en tubería",lugar:"Camino a la escuela",f:"14 oct",e:"Reparado"},
+    {id:"R-0247",tipo:"Agua turbia",lugar:"Sector Alto",f:"19 oct",e:"En revisión"}],
+  cortes:[
+    {f:"21 oct",h:"1:00–4:00 p.m.",s:"Sector Alto",c:"Llenado del tanque principal tras alto consumo de riego en la mañana"},
+    {f:"17 oct",h:"8:00–11:00 a.m.",s:"Toda la vereda",c:"Reparación de tubo roto en la bocatoma"},
+    {f:"12 oct",h:"2:00–5:00 p.m.",s:"Sector Alto",c:"Baja presión por demanda de riego"},
+    {f:"5 oct",h:"6:00–9:00 a.m.",s:"Sector Bajo",c:"Lavado del desarenador por sedimento"}],
+  lecturas:[
+    {m:"MED-0417",u:"Finca La Palma",v:"1.885 L/día",e:"warn"},
+    {m:"MED-0392",u:"Finca El Recreo",v:"940 L/día",e:"ok"},
+    {m:"MED-0405",u:"Casa Blanca Ocampo",v:"610 L/día",e:"ok"},
+    {m:"MED-0433",u:"Finca Los Naranjos",v:"2.310 L/día",e:"bad"}]
+};
+
+// ---------- Íconos ----------
+const I = {
+  home:'<path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  tank:'<rect x="5" y="6" width="14" height="15" rx="2"/><path d="M5 13h14M9 3h6v3H9z"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5"/>',
+  alert:'<path d="M12 3 2 20h20zM12 10v4M12 17h.01"/>',
+  gauge:'<path d="M12 14l4-4M3 14a9 9 0 0 1 18 0"/><circle cx="12" cy="14" r="1.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  megaphone:'<path d="M3 11v3l12 5V6L3 11zM15 9a4 4 0 0 1 0 6"/>',
+  inbox:'<path d="M3 13h5l1 3h6l1-3h5M5 5h14l2 8v6H3v-6z"/>',
+  play:'<path d="M8 5v14l11-7z" fill="currentColor"/>'
+};
+const ic = (k,extra="") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${I[k]}</svg>`;
+
+// ---------- Estado ----------
+let rol = "fam", tab = "inicio", filtro = "Todos", abierta = -1, enviado = null, alertaPub = null, lecturaOk = null;
+const TABS = {
+  fam:[["inicio","Inicio","home"],["consumo","Consumo","chart"],["tanques","Tanques","tank"],["aprende","Aprende","book"],["reportar","Reportar","alert"]],
+  jaav:[["panel","Panel","gauge"],["lecturas","Lecturas","chart"],["cortes","Cortes","clock"],["alertas","Alertas","megaphone"],["reportes","Reportes","inbox"]]
+};
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString("es-CO");
+
+// ---------- Pantallas familia ----------
+function inicio(){
+  const hoy = D.semana[6], total = hoy.dom+hoy.rie+hoy.gan;
+  return `
+  <div><span class="label">Hola, ${D.usuario.nombre}</span><h2>Así está el agua hoy</h2></div>
+  <div class="card"><div class="status"><span class="dot"></span><div><h3>Con servicio</h3><p class="sub">Presión normal en ${D.usuario.sector} · actualizado 9:40 a.m.</p></div></div></div>
+  <div class="card cut">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="label">Próximo corte programado</span><span class="pill warn">Aviso de la junta</span></div>
+    <div class="when">Hoy, 1:00 p.m. a 4:00 p.m.</div>
+    <p class="sub" style="color:var(--ink)">${D.usuario.sector}. Llene baldes y riegue antes del mediodía.</p>
+    <div class="why"><b>¿Por qué se corta?</b>El tanque principal se vacía cuando muchas fincas riegan al mismo tiempo en la mañana. El corte permite que se vuelva a llenar.</div>
+  </div>
+  <div class="grid2">
+    <div class="mini"><span class="label">Mi consumo hoy</span><div class="big num">${fmt(total)} <small>L</small></div><span class="pill bad" style="align-self:flex-start">+${Math.round((total/D.metaDia-1)*100)}% sobre la meta</span></div>
+    <div class="mini"><span class="label">Tanque de lluvia</span><div class="big num">${D.tanque.nivel}<small>%</small></div><span class="pill info" style="align-self:flex-start">${fmt(D.tanque.capacidad*D.tanque.nivel/100)} L guardados</span></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3>Meta de la vereda</h3><span class="num" style="font-weight:700">${D.vereda.logrado}% de ${D.vereda.metaAhorro}%</span></div>
+    <div class="bar"><span style="width:${D.vereda.logrado/D.vereda.metaAhorro*100}%"></span></div>
+    <p class="sub">${D.vereda.familias} familias de El Porvenir buscan ahorrar ${D.vereda.metaAhorro}% este mes. Se muestra el total de la vereda, no el de cada familia.</p>
+  </div>
+  <div>
+    <span class="label">Así llega el aviso por WhatsApp</span>
+    <div class="wa" style="margin-top:8px">
+      <div class="wa-head"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>AguaJusta · Junta El Porvenir</div>
+      <div class="bubble">Corte hoy de <b>1:00 a 4:00 p.m.</b> en Sector Alto. Causa: llenado del tanque principal. Responda <b>REPORTE</b> si ve una fuga.<div class="t">9:42 a.m.</div></div>
+    </div>
+  </div>`;
+}
+
+function consumo(){
+  const s = D.semana, tot = s.map(x=>x.dom+x.rie+x.gan), max = 1600;
+  const W=340,H=200,L=38,B=24,T=10, cw=(W-L-6)/s.length, bw=cw*0.56, y=v=>T+(H-T-B)*(1-v/max);
+  let g="";
+  [0,400,800,1200,1600].forEach(v=>{g+=`<line x1="${L}" x2="${W-4}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(v)}</text>`});
+  g+=`<line x1="${L}" x2="${W-4}" y1="${y(D.metaDia)}" y2="${y(D.metaDia)}" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s.forEach((x,i)=>{
+    const cx=L+cw*i+(cw-bw)/2; let acc=0;
+    [["dom","var(--water)"],["rie","var(--leaf)"],["gan","var(--ochre)"]].forEach(([k,c])=>{
+      const y1=y(acc+x[k]), y0=y(acc); g+=`<rect x="${cx}" y="${y1}" width="${bw}" height="${y0-y1}" fill="${c}"/>`; acc+=x[k];});
+    g+=`<text x="${cx+bw/2}" y="${H-6}" text-anchor="middle" ${i===6?'style="fill:var(--ink);font-weight:700"':''}>${x.d}</text>`;
+  });
+  const sum = k => s.reduce((a,x)=>a+x[k],0), all = sum("dom")+sum("rie")+sum("gan");
+  return `
+  <div><span class="label">${D.usuario.finca} · Medidor ${D.usuario.medidor}</span><h2>Mi consumo</h2></div>
+  <div class="card" style="background:var(--bad-soft);border-color:transparent">
+    <h3 style="color:var(--bad)">Alerta de sobreconsumo</h3>
+    <p class="sub" style="color:var(--ink)">El riego subió de 480 L a 880 L en los últimos tres días. Si riega temprano y con goteo puede bajar cerca de 300 L diarios.</p>
+    <button class="btn ghost" data-go="aprende" style="align-self:flex-start">Ver cómo regar mejor</button>
+  </div>
+  <div class="card chart">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3>Últimos 7 días</h3><span class="sub" style="font-size:12px">litros por día</span></div>
+    <div class="legend"><span><i style="background:var(--water)"></i>Casa</span><span><i style="background:var(--leaf)"></i>Riego</span><span><i style="background:var(--ochre)"></i>Ganado</span><span><i style="background:var(--bad);height:2px;vertical-align:3px"></i>Meta ${fmt(D.metaDia)} L</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Consumo diario de la semana, el miércoles llega a 1.435 litros">${g}</svg>
+  </div>
+  <div class="card">
+    <h3>¿En qué se va el agua esta semana?</h3>
+    <div class="list">
+      ${[["Riego",sum("rie"),"var(--leaf)"],["Casa",sum("dom"),"var(--water)"],["Ganado",sum("gan"),"var(--ochre)"]].map(([n,v,c])=>`
+      <div class="row"><div class="l" style="flex:1"><div style="display:flex;justify-content:space-between"><b>${n}</b><span class="num">${fmt(v)} L · ${Math.round(v/all*100)}%</span></div>
+      <div class="bar" style="margin-top:6px"><span style="width:${v/all*100}%;background:${c}"></span></div></div></div>`).join("")}
+    </div>
+    <p class="sub" style="font-size:13px">La junta registra la lectura del medidor y la app calcula el consumo. No hace falta instalar sensores.</p>
+  </div>`;
+}
+
+function tanques(){
+  const t=D.tanque, L=t.capacidad*t.nivel/100, dias=Math.floor(L/220);
+  return `
+  <div><span class="label">Cosecha de agua lluvia</span><h2>Mis tanques</h2></div>
+  <div class="card">
+    <div class="tank">
+      <div class="tank-vis" aria-hidden="true"><span style="height:${t.nivel}%"></span></div>
+      <div><span class="label">Tanque actual (provisional)</span><div style="font-family:var(--display);font-weight:800;font-size:28px" class="num">${fmt(L)} L</div>
+      <p class="sub">${t.nivel}% de ${fmt(t.capacidad)} L · alcanza para unos <b>${dias} días</b> de riego de la huerta.</p></div>
+    </div>
+    <div class="why" style="background:var(--water-soft)"><b>Pronóstico</b>${t.lluvia}. Destape la canaleta el jueves en la tarde.</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3>Trámite con la alcaldía</h3><span class="pill info">Paso 3 de 5</span></div>
+    <ol class="steps">${D.tramite.map((p,i)=>`<li class="${p.s}"><span class="mk">${p.s==="done"?"✓":i+1}</span><div><b>${p.t}</b><div class="d">${p.d}</div></div></li>`).join("")}</ol>
+  </div>
+  <div class="card"><h3>¿Un vecino quiere su tanque?</h3><p class="sub">La solicitud se hace desde la app y la alcaldía responde por aquí mismo. El programa se apoya en recursos de Cornare, la Gobernación y BanCO2.</p><button class="btn ghost" style="align-self:flex-start" data-msg="Solicitud de ejemplo creada">Iniciar nueva solicitud</button></div>`;
+}
+
+function aprende(){
+  const cats=["Todos","Riego","Fumigación","Ganado","Agua lluvia","Hogar"];
+  const items=D.lecciones.map((l,i)=>({...l,i})).filter(l=>filtro==="Todos"||l.c===filtro);
+  return `
+  <div><span class="label">Videos y guías cortas</span><h2>Aprende a ahorrar</h2></div>
+  <div class="chips" role="group" aria-label="Filtrar por tema">${cats.map(c=>`<button class="chip" data-f="${c}" aria-pressed="${c===filtro}">${c}</button>`).join("")}</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+  ${items.map(l=>`<button class="lesson" data-l="${l.i}" aria-expanded="${abierta===l.i}">
+    <span class="thumb" style="background:var(--${l.col}-soft);color:var(--${l.col})">${ic("play")}</span>
+    <span><span class="label">${l.c}</span><br><b>${l.t}</b><br><span class="meta">${l.m} · también por WhatsApp</span></span>
+    ${abierta===l.i?`<span class="lesson-body"><ol>${l.p.map(x=>`<li>${x}</li>`).join("")}</ol></span>`:""}
+  </button>`).join("")}
+  </div>`;
+}
+
+function reportar(){
+  return `
+  <div><span class="label">Avísele a la junta</span><h2>Reportar un problema</h2></div>
+  ${enviado?`<div class="toast">Reporte ${enviado} enviado. La junta lo verá en su panel y le responderá por WhatsApp.</div>`:""}
+  <form class="card" id="f-rep">
+    <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px"><legend class="legend-q">¿Qué está pasando?</legend>
+      <div class="types">${["Fuga o tubo roto","Agua turbia","Sin agua","Baja presión"].map((t,i)=>`<label><input type="radio" name="tipo" id="tipo-${i}" value="${t}" ${i===0?"checked":""}>${t}</label>`).join("")}</div>
+    </fieldset>
+    <div class="field"><label for="lugar">¿Dónde?</label><select id="lugar"><option>Sector Alto</option><option>Sector Bajo</option><option>Camino a la escuela</option><option>Cerca de la bocatoma</option></select></div>
+    <div class="field"><label for="desc">Cuéntenos un poco más (opcional)</label><textarea id="desc">Sale agua por la unión del tubo frente a la finca La Palma desde ayer.</textarea></div>
+    <button class="btn" type="submit">Enviar reporte</button>
+  </form>
+  <div class="card"><h3>Mis reportes</h3><div class="list">
+    ${D.reportes.map(r=>`<div class="row"><div class="l"><b>${r.tipo}</b><small>${r.id} · ${r.lugar} · ${r.f}</small></div><span class="pill ${r.e==="Reparado"?"ok":r.e==="Recibido"?"info":"warn"}">${r.e}</span></div>`).join("")}
+  </div></div>`;
+}
+
+// ---------- Pantallas junta (JAAV) ----------
+function panel(){
+  return `
+  <div><span class="label">Junta Administradora · El Porvenir</span><h2>Panel de la junta</h2></div>
+  <div class="grid2">
+    <div class="mini"><span class="label">Tanque principal</span><div class="big num">58<small>%</small></div><span class="pill warn" style="align-self:flex-start">Bajando</span></div>
+    <div class="mini"><span class="label">Consumo vereda</span><div class="big num">96<small> m³/día</small></div><span class="pill bad" style="align-self:flex-start">+12% vs. sept.</span></div>
+    <div class="mini"><span class="label">Reportes abiertos</span><div class="big num">3</div><span class="pill info" style="align-self:flex-start">1 nuevo hoy</span></div>
+    <div class="mini"><span class="label">Lecturas al día</span><div class="big num">71<small>/86</small></div><span class="pill warn" style="align-self:flex-start">Faltan 15</span></div>
+  </div>
+  <div class="card"><h3>Lo que necesita atención</h3><div class="list">
+    <div class="row"><div class="l"><b>Corte de hoy sin publicar por WhatsApp</b><small>Sector Alto · 1:00–4:00 p.m.</small></div><button class="pill info" style="border:0;cursor:pointer" data-go="alertas">Publicar</button></div>
+    <div class="row"><div class="l"><b>2 fincas pasan el doble de la meta</b><small>Los Naranjos y La Palma</small></div><button class="pill info" style="border:0;cursor:pointer" data-go="lecturas">Ver</button></div>
+    <div class="row"><div class="l"><b>Agua turbia en Sector Alto</b><small>R-0247 · hace 3 días</small></div><button class="pill info" style="border:0;cursor:pointer" data-go="reportes">Revisar</button></div>
+  </div></div>`;
+}
+function lecturas(){
+  return `
+  <div><span class="label">Registro manual del medidor</span><h2>Lecturas</h2></div>
+  ${lecturaOk?`<div class="toast">Lectura de ${lecturaOk} guardada. La app actualizó el consumo de esa familia.</div>`:""}
+  <form class="card" id="f-lec">
+    <div class="field"><label for="med">Medidor</label><select id="med"><option>MED-0417 · Finca La Palma</option><option>MED-0392 · Finca El Recreo</option><option>MED-0405 · Casa Blanca Ocampo</option><option>MED-0433 · Finca Los Naranjos</option></select></div>
+    <div class="field"><label for="lec">Lectura de hoy (m³)</label><input type="number" id="lec" value="1284.6" step="0.1"></div>
+    <button class="btn" type="submit">Guardar lectura</button>
+  </form>
+  <div class="card"><h3>Consumo promedio por finca</h3><div class="list">
+    ${D.lecturas.map(r=>`<div class="row"><div class="l"><b>${r.u}</b><small>${r.m}</small></div><span class="pill ${r.e}">${r.v}</span></div>`).join("")}
+  </div><p class="sub" style="font-size:13px">Solo la junta ve el consumo por finca. La comunidad ve el total de la vereda.</p></div>`;
+}
+function cortes(){
+  return `
+  <div><span class="label">Transparencia</span><h2>Historial de cortes</h2></div>
+  <p class="sub">Cada corte queda registrado con su causa, para que la comunidad entienda por qué pasa.</p>
+  <div class="card"><div class="list">
+    ${D.cortes.map(c=>`<div class="row"><div class="l"><b>${c.f} · ${c.h}</b><small>${c.s}</small><div style="font-size:14px;margin-top:4px">${c.c}</div></div></div>`).join("")}
+  </div></div>
+  <div class="card" style="background:var(--water-soft);border-color:transparent"><h3>Patrón detectado</h3><p class="sub" style="color:var(--ink)">3 de los últimos 4 cortes en Sector Alto pasan por la tarde, después del riego de la mañana. Proponer turnos de riego por sector podría evitarlos.</p></div>`;
+}
+function alertas(){
+  return `
+  <div><span class="label">Comunicación con la vereda</span><h2>Publicar alerta</h2></div>
+  ${alertaPub?`<div class="toast">Alerta publicada en la app y enviada por WhatsApp a 86 familias.</div>`:""}
+  <form class="card" id="f-al">
+    <div class="field"><label for="al-tipo">Tipo de alerta</label><select id="al-tipo"><option>Corte programado</option><option>Agua turbia</option><option>Reparación</option><option>Recomendación de ahorro</option></select></div>
+    <div class="field"><label for="al-sec">Sector</label><select id="al-sec"><option>Sector Alto</option><option>Sector Bajo</option><option>Toda la vereda</option></select></div>
+    <div class="field"><label for="al-hora">Horario</label><input type="text" id="al-hora" value="Hoy, 1:00 p.m. a 4:00 p.m."></div>
+    <div class="field"><label for="al-causa">Causa (se muestra a la comunidad)</label><textarea id="al-causa">Llenado del tanque principal tras alto consumo de riego en la mañana.</textarea></div>
+    <button class="btn" type="submit">Publicar y enviar por WhatsApp</button>
+  </form>`;
+}
+function reportes(){
+  const todos=[{id:"R-0252",tipo:"Fuga o tubo roto",lugar:"Sector Alto",f:"hoy",e:"Recibido"},...D.reportes];
+  return `
+  <div><span class="label">Lo que reporta la comunidad</span><h2>Reportes recibidos</h2></div>
+  <div class="card"><div class="list">
+    ${todos.map(r=>`<div class="row"><div class="l"><b>${r.tipo}</b><small>${r.id} · ${r.lugar} · ${r.f}</small></div><span class="pill ${r.e==="Reparado"?"ok":r.e==="Recibido"?"info":"warn"}">${r.e}</span></div>`).join("")}
+  </div></div>`;
+}
+
+const V={inicio,consumo,tanques,aprende,reportar,panel,lecturas,cortes,alertas,reportes};
+
+// ---------- Render ----------
+function render(){
+  $("#view").innerHTML = V[tab]() + `<p class="proto">Prototipo con datos de ejemplo · Proyecto AguaJusta, Universidad EIA</p>`;
+  const t=TABS[rol];
+  $("#tabs").style.gridTemplateColumns=`repeat(${t.length},1fr)`;
+  $("#tabs").innerHTML=t.map(([k,n,i])=>`<button data-tab="${k}" ${k===tab?'aria-current="page"':""}>${ic(i)}${n}</button>`).join("");
+  $("#role-fam").setAttribute("aria-pressed",rol==="fam"); $("#role-jaav").setAttribute("aria-pressed",rol==="jaav");
+  $("#where").textContent = rol==="fam" ? "Vereda El Porvenir · El Carmen de Viboral" : "Junta del acueducto · Vereda El Porvenir";
+  try{ history.replaceState(null,"","#"+tab) }catch(e){}
+}
+function go(k){ tab=k; enviado=null; alertaPub=null; lecturaOk=null; render(); window.scrollTo(0,0); }
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-tab],[data-go],[data-f],[data-l],[data-msg]"); if(!b) return;
+  if(b.dataset.tab) go(b.dataset.tab);
+  else if(b.dataset.go) go(b.dataset.go);
+  else if(b.dataset.f){ filtro=b.dataset.f; abierta=-1; render(); }
+  else if(b.dataset.l){ const i=+b.dataset.l; abierta = abierta===i?-1:i; render(); }
+  else if(b.dataset.msg){ b.textContent=b.dataset.msg; b.disabled=true; }
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();
+  if(e.target.id==="f-rep"){ const tipo=document.querySelector('input[name=tipo]:checked').value; enviado="R-0253";
+    D.reportes.unshift({id:enviado,tipo,lugar:$("#lugar").value,f:"hoy",e:"Recibido"}); render(); }
+  if(e.target.id==="f-al"){ alertaPub=true; render(); }
+  if(e.target.id==="f-lec"){ lecturaOk=$("#med").value.split(" · ")[1]; render(); }
+});
+$("#role-fam").onclick=()=>{rol="fam";go("inicio")};
+$("#role-jaav").onclick=()=>{rol="jaav";go("panel")};
+
+const h=location.hash.slice(1);
+if(V[h]){ rol = TABS.jaav.some(t=>t[0]===h) ? "jaav" : "fam"; tab=h; }
+render();
+</script>
