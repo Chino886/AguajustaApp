@@ -1,0 +1,7 @@
+[client]
+# Visitantes solo usan la app: sin menú de desarrollador
+toolbarMode = "minimal"
+showErrorDetails = false
+
+[server]
+runOnSave = false
