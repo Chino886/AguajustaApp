@@ -212,6 +212,8 @@ nav.tabs button[aria-current="page"]{color:var(--deep)}
     </div>
     <div class="who" id="where">Vereda El Porvenir · El Carmen de Viboral</div>
     <div class="menu" id="menu" hidden>
+      <button id="m-cuenta">Mi cuenta</button>
+      <hr>
       <button id="role-fam">Vista de la familia</button>
       <button id="role-jaav">Vista de la junta</button>
       <hr>
@@ -280,7 +282,7 @@ const ic=(k,s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="no
 
 // ---------- Estado ----------
 let rol="fam", tab="inicio", filtro="Todos", mesSel=9, enviado=null, alertaPub=null, lecturaOk=null;
-let tieneTanque=true, solicitud=null, modo="in", juntaOk=false, juntaErr="";
+let tieneTanque=true, solicitud=null, modo="in", juntaOk=false, juntaErr="", cuentaMsg="", cuentaErr="";
 const TABS={
   fam:[["inicio","Inicio","home"],["consumo","Consumo","chart"],["tanques","Tanques","tank"],["aprende","Videos","play"],["reportar","Reportar","alert"]],
   jaav:[["panel","Panel","gauge"],["lecturas","Lecturas","chart"],["cortes","Cortes","clock"],["alertas","Avisos","megaphone"],["reportes","Reportes","inbox"]]
@@ -503,7 +505,27 @@ function reportes(){
   </div></div>`;
 }
 
-const V={inicio,consumo,tanques,aprende,reportar,panel,lecturas,cortes,alertas,reportes};
+function cuenta(){
+  const u=leer(KEY_U,{})[D.usuario.correo]||{nombre:D.usuario.nombreCompleto,cel:D.usuario.cel,muni:"El Carmen de Viboral"};
+  const munis=["El Carmen de Viboral","Rionegro","La Ceja","El Retiro","Guarne","Marinilla","San Vicente Ferrer","La Unión"];
+  return `
+  <div><div class="kicker">${D.usuario.correo||""}</div><h2>Mi cuenta</h2></div>
+  ${cuentaMsg?`<div class="toast">${cuentaMsg}</div>`:""}
+  <form class="card" id="f-cuenta">
+    <div class="field"><label for="c-nombre">Nombre completo</label><input type="text" id="c-nombre" value="${u.nombre}"></div>
+    <div class="field"><label for="c-cel">Celular con WhatsApp</label><input type="text" id="c-cel" value="${u.cel}" inputmode="tel"></div>
+    <p class="sub" style="font-size:13px;margin-top:-6px">A este número le llegan los avisos de cortes y las visitas.</p>
+    <div class="field"><label for="c-muni">Municipio</label><select id="c-muni">${munis.map(m=>`<option ${m===u.muni?"selected":""}>${m}</option>`).join("")}</select></div>
+    ${cuentaErr?`<p class="sub" style="color:var(--bad);font-size:14px">${cuentaErr}</p>`:""}
+    <button class="btn" type="submit">Guardar cambios</button>
+  </form>
+  <div class="card"><div class="list">
+    <div class="row"><div class="l"><b>Correo</b><small>${D.usuario.correo||""}</small></div></div>
+    <div class="row"><div class="l"><b>Departamento</b><small>Antioquia</small></div></div>
+    ${juntaOk?`<div class="row"><div class="l"><b>Junta del acueducto</b><small>Miembro verificado</small></div></div>`:""}
+  </div></div>`;
+}
+const V={cuenta,inicio,consumo,tanques,aprende,reportar,panel,lecturas,cortes,alertas,reportes};
 
 // ---------- Render ----------
 function render(){
@@ -515,7 +537,7 @@ function render(){
   $("#where").textContent=rol==="fam"?"Vereda El Porvenir · El Carmen de Viboral":"Junta del acueducto · Vereda El Porvenir";
   try{history.replaceState(null,"","#"+tab)}catch(e){}
 }
-function go(k){tab=k;enviado=null;alertaPub=null;lecturaOk=null;render();window.scrollTo(0,0);}
+function go(k){tab=k;enviado=null;alertaPub=null;lecturaOk=null;cuentaMsg="";cuentaErr="";render();window.scrollTo(0,0);}
 function menu(open){$("#menu").hidden=!open;$("#menu-btn").setAttribute("aria-expanded",open);}
 
 document.addEventListener("click",e=>{
@@ -535,6 +557,18 @@ document.addEventListener("submit",e=>{
     enviado={id:"R-0253",v:"viernes 24 de octubre, entre 8:00 y 11:00 a.m."};
     D.reportes.unshift({id:enviado.id,tipo,lugar:$("#lugar").value,f:"hoy",e:"Visita agendada",v:"Visita: viernes 24 de octubre, 8:00–11:00 a.m."});render();window.scrollTo(0,0);}
   if(e.target.id==="f-al"){alertaPub=true;render();}
+  if(e.target.id==="f-cuenta"){
+    const nombre=$("#c-nombre").value.trim(), cel=$("#c-cel").value.trim();
+    cuentaMsg="";cuentaErr="";
+    if(!nombre) cuentaErr="Escriba su nombre.";
+    else if(cel.replace(/\D/g,"").length<10) cuentaErr="Escriba un celular de 10 dígitos.";
+    else{
+      const u=leer(KEY_U,{}), c=D.usuario.correo;
+      if(u[c]){u[c].nombre=nombre;u[c].cel=cel;u[c].muni=$("#c-muni").value;guardar(KEY_U,u);}
+      D.usuario.nombreCompleto=nombre;D.usuario.nombre=nombre.split(" ")[0];D.usuario.cel=cel;
+      cuentaMsg=`Cambios guardados. Los avisos llegarán ahora al ${cel}.`;
+    }
+    render();window.scrollTo(0,0);}
   if(e.target.id==="f-junta"){
     if($("#j-cod").value.trim().toUpperCase().replace(/\s/g,"")==="JUNTA2026"){
       juntaOk=true;juntaErr="";const u=leer(KEY_U,{});if(u[D.usuario.correo]){u[D.usuario.correo].junta=true;guardar(KEY_U,u);}
@@ -622,6 +656,7 @@ $("#f-auth").onsubmit=async e=>{
   aviso(`Cuenta creada, ${nombre.split(" ")[0]}. Ahora escriba su contraseña para entrar.`,true);
   $("#a-clave").focus();
 };
+$("#m-cuenta").onclick=()=>{menu(false);go("cuenta")};
 $("#out-btn").onclick=()=>$("#logout").click();
 $("#logout").onclick=()=>{menu(false);borrar(KEY_S);$("#app").hidden=true;$("#auth").hidden=false;setModo("in");$("#a-clave").value="";$("#a-correo").value=leer("aguajusta_ultimo","");aviso("");window.scrollTo(0,0);};
 setModo("in");
