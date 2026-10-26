@@ -186,11 +186,12 @@ nav.tabs button[aria-current="page"]{color:var(--deep)}
       <div class="f" id="w-muni" hidden><label for="a-muni">Municipio</label><select id="a-muni"><option>El Carmen de Viboral</option><option>Rionegro</option><option>La Ceja</option><option>El Retiro</option><option>Guarne</option><option>Marinilla</option><option>San Vicente Ferrer</option><option>La Unión</option></select></div>
       <div class="msg" id="dep-msg" hidden></div>
       <p class="err" id="a-err" hidden></p>
+      <div class="msg" id="a-ok" hidden></div>
       <button class="btn-mint" type="submit" id="a-btn">Iniciar sesión</button>
     </form>
     <button class="link" id="a-olvido">¿Olvidaste tu contraseña?</button>
     <button class="link" id="a-switch">¿No tienes cuenta? <b>Regístrate</b></button>
-    <p class="hint">Prototipo: cualquier correo y contraseña funcionan.</p>
+    <p class="hint">Cuenta de prueba: prueba@aguajusta.co · contraseña agua2026</p>
   </div>
 </section>
 
@@ -539,20 +540,62 @@ function setModo(m){
   $("#a-switch").innerHTML=up?"¿Ya tienes cuenta? <b>Inicia sesión</b>":"¿No tienes cuenta? <b>Regístrate</b>";
   $("#a-err").hidden=true; checkDepto();
 }
-$("#a-switch").onclick=()=>setModo(modo==="in"?"up":"in");
-$("#a-olvido").onclick=()=>{const er=$("#a-err");er.hidden=false;er.textContent="Le enviamos un enlace a su correo y un mensaje por WhatsApp para crear una contraseña nueva.";};
-$("#a-depto").onchange=checkDepto;
-$("#f-auth").onsubmit=e=>{
-  e.preventDefault();
-  const correo=$("#a-correo").value.trim(), clave=$("#a-clave").value, err=$("#a-err"); let msg="";
-  if(!/^\S+@\S+\.\S+$/.test(correo)) msg="Escriba un correo válido, por ejemplo nombre@correo.com.";
-  else if(clave.length<4) msg="La contraseña debe tener al menos 4 caracteres.";
-  else if(modo==="up"&&!$("#a-nombre").value.trim()) msg="Escriba su nombre.";
-  else if(modo==="up"&&$("#a-cel").value.replace(/\D/g,"").length<10) msg="Escriba su número de celular con WhatsApp (10 dígitos).";
-  if(msg){err.textContent=msg;err.hidden=false;return;}
-  if(modo==="up"){const n=$("#a-nombre").value.trim();D.usuario.nombreCompleto=n;D.usuario.nombre=n.split(" ")[0];D.usuario.cel=$("#a-cel").value.trim();}
+// ---------- Cuentas guardadas en este navegador ----------
+const KEY_U="aguajusta_usuarios", KEY_S="aguajusta_sesion";
+let memoria={};
+function leer(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return memoria[k]??def}}
+function guardar(k,v){memoria[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function borrar(k){delete memoria[k];try{localStorage.removeItem(k)}catch(e){}}
+async function cifrar(t){
+  try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("aj:"+t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+  catch(e){return "p:"+t}
+}
+async function usuarios(){
+  const u=leer(KEY_U,{});
+  if(!u["prueba@aguajusta.co"]){u["prueba@aguajusta.co"]={nombre:"Wilmar Ramírez",cel:"312 456 7890",depto:"Antioquia",muni:"El Carmen de Viboral",clave:await cifrar("agua2026"),creado:"2026-10-01"};guardar(KEY_U,u);}
+  return u;
+}
+function aviso(txt,ok){const er=$("#a-err"),o=$("#a-ok");er.hidden=ok||!txt;o.hidden=!ok||!txt;(ok?o:er).textContent=txt||"";}
+function entrar(correo,u){
+  D.usuario.nombreCompleto=u.nombre;D.usuario.nombre=u.nombre.split(" ")[0];D.usuario.cel=u.cel;D.usuario.correo=correo;
+  guardar(KEY_S,correo); guardar("aguajusta_ultimo",correo); aviso("");
   $("#auth").hidden=true;$("#app").hidden=false;rol="fam";go("inicio");
+}
+
+$("#a-switch").onclick=()=>{setModo(modo==="in"?"up":"in");aviso("");};
+$("#a-olvido").onclick=async()=>{
+  const c=$("#a-correo").value.trim().toLowerCase(), u=await usuarios();
+  if(!c) return aviso("Escriba su correo arriba y vuelva a tocar “¿Olvidaste tu contraseña?”.");
+  if(!u[c]) return aviso("No hay una cuenta con ese correo. Regístrese primero.");
+  aviso(`Le enviamos un enlace a ${c} y un mensaje por WhatsApp para crear una contraseña nueva.`,true);
 };
-$("#logout").onclick=()=>{menu(false);$("#app").hidden=true;$("#auth").hidden=false;setModo("in");window.scrollTo(0,0);};
+$("#a-depto").onchange=checkDepto;
+$("#f-auth").onsubmit=async e=>{
+  e.preventDefault();
+  const correo=$("#a-correo").value.trim().toLowerCase(), clave=$("#a-clave").value;
+  if(!/^\S+@\S+\.\S+$/.test(correo)) return aviso("Escriba un correo válido, por ejemplo nombre@correo.com.");
+  if(clave.length<4) return aviso("La contraseña debe tener al menos 4 caracteres.");
+  const u=await usuarios();
+  if(modo==="in"){
+    if(!u[correo]){setModo("up");$("#a-correo").value=correo;$("#a-clave").value="";
+      return aviso("No encontramos una cuenta con ese correo. Regístrese para poder entrar.");}
+    if(u[correo].clave!==await cifrar(clave)) return aviso("La contraseña no es correcta. Intente de nuevo.");
+    return entrar(correo,u[correo]);
+  }
+  // Registro
+  const nombre=$("#a-nombre").value.trim(), cel=$("#a-cel").value.trim();
+  if(!nombre) return aviso("Escriba su nombre.");
+  if(cel.replace(/\D/g,"").length<10) return aviso("Escriba su número de celular con WhatsApp (10 dígitos).");
+  if(u[correo]){setModo("in");$("#a-correo").value=correo;$("#a-clave").value="";
+    return aviso("Ya existe una cuenta con ese correo. Inicie sesión.",true);}
+  u[correo]={nombre,cel,depto:$("#a-depto").value,muni:$("#a-muni").value,clave:await cifrar(clave),creado:new Date().toISOString().slice(0,10)};
+  guardar(KEY_U,u);
+  setModo("in");$("#a-correo").value=correo;$("#a-clave").value="";
+  aviso(`Cuenta creada, ${nombre.split(" ")[0]}. Ahora escriba su contraseña para entrar.`,true);
+  $("#a-clave").focus();
+};
+$("#logout").onclick=()=>{menu(false);borrar(KEY_S);$("#app").hidden=true;$("#auth").hidden=false;setModo("in");$("#a-clave").value="";$("#a-correo").value=leer("aguajusta_ultimo","");aviso("");window.scrollTo(0,0);};
 setModo("in");
+// Si ya había iniciado sesión en este navegador, entra directo; si no, recuerda su correo
+(async()=>{const s=leer(KEY_S,null),u=await usuarios(); if(s&&u[s]) entrar(s,u[s]); else $("#a-correo").value=leer("aguajusta_ultimo","");})();
 </script>
