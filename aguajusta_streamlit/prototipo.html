@@ -182,9 +182,9 @@ nav.tabs button[aria-current="page"]{color:var(--deep)}
     <h1 id="a-title">Bienvenido</h1>
     <form id="f-auth" novalidate style="display:flex;flex-direction:column;gap:12px">
       <div class="f" id="w-nombre" hidden><input type="text" id="a-nombre" placeholder="Nombre completo" autocomplete="name"></div>
-      <div class="f"><input type="text" id="a-correo" value="prueba@aguajusta.co" placeholder="Email" autocomplete="email" inputmode="email"></div>
+      <div class="f"><input type="text" id="a-correo" placeholder="Email" autocomplete="email" inputmode="email"></div>
       <div class="f" id="w-cel" hidden><input type="text" id="a-cel" placeholder="Celular con WhatsApp" inputmode="tel" autocomplete="tel"></div>
-      <div class="f"><input type="password" id="a-clave" value="agua2026" placeholder="Contraseña" autocomplete="current-password"></div>
+      <div class="f"><input type="password" id="a-clave" placeholder="Contraseña" autocomplete="current-password"></div>
       <div class="f" id="w-depto" hidden><label for="a-depto">Departamento</label><select id="a-depto"></select></div>
       <div class="f" id="w-muni" hidden><label for="a-muni">Municipio</label><select id="a-muni"><option>El Carmen de Viboral</option><option>Rionegro</option><option>La Ceja</option><option>El Retiro</option><option>Guarne</option><option>Marinilla</option><option>San Vicente Ferrer</option><option>La Unión</option></select></div>
       <div class="msg" id="dep-msg" hidden></div>
@@ -654,8 +654,8 @@ $("#f-auth").onsubmit=async e=>{
   aviso(`Cuenta creada, ${nombre.split(" ")[0]}. Toque “Iniciar sesión” para entrar.`,true);
 };
 $("#m-cuenta").onclick=()=>{menu(false);go("cuenta")};
-$("#logout").onclick=()=>{menu(false);borrar(KEY_S);$("#app").hidden=true;$("#auth").hidden=false;setModo("in");$("#a-correo").value=leer("aguajusta_ultimo","")||"prueba@aguajusta.co";$("#a-clave").value="agua2026";aviso("");window.scrollTo(0,0);};
+$("#logout").onclick=()=>{menu(false);borrar(KEY_S);$("#app").hidden=true;$("#auth").hidden=false;setModo("in");$("#a-correo").value="";$("#a-clave").value="";aviso("");window.scrollTo(0,0);};
 setModo("in");
 // Si ya había iniciado sesión en este navegador, entra directo; si no, recuerda su correo
-(async()=>{const s=leer(KEY_S,null),u=await usuarios(); if(s&&u[s]) entrar(s,u[s]); else if(leer("aguajusta_ultimo","")) $("#a-correo").value=leer("aguajusta_ultimo","");})();
+(async()=>{const s=leer(KEY_S,null),u=await usuarios(); if(s&&u[s]) entrar(s,u[s]); })();
 </script>
