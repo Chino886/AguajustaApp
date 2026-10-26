@@ -44,6 +44,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .auth .msg{border-radius:10px;padding:10px 12px;font-size:14px;background:rgba(255,255,255,.14);color:#fff}
 .auth .msg.no{background:#F7E0E1;color:var(--bad)}
 .auth .err{color:#FFE1E3;font-size:14px;margin:0}
+.btn-guest{margin-top:0!important;border:2px solid rgba(255,255,255,.75);background:transparent;color:#fff;font:600 18px var(--display);padding:13px;border-radius:12px;cursor:pointer;margin-top:8px}
+.btn-guest:hover{background:rgba(255,255,255,.1)}
 .auth .hint{color:rgba(255,255,255,.75);font-size:12px;text-align:center;margin:0}
 
 /* App */
@@ -192,9 +194,10 @@ nav.tabs button[aria-current="page"]{color:var(--deep)}
       <div class="msg" id="a-ok" hidden></div>
       <button class="btn-mint" type="submit" id="a-btn">Iniciar sesión</button>
     </form>
+    <button class="btn-guest" id="a-guest" type="button">Entrar sin registrarse</button>
+    <p class="hint">Para ver la app rápido, sin crear cuenta.</p>
     <button class="link" id="a-olvido">¿Olvidaste tu contraseña?</button>
     <button class="link" id="a-switch">¿No tienes cuenta? <b>Regístrate</b></button>
-    <p class="hint">Prototipo: toque “Iniciar sesión” para entrar.</p>
   </div>
 </section>
 
@@ -623,6 +626,7 @@ function entrar(correo,u){
   $("#auth").hidden=true;$("#app").hidden=false;rol="fam";go("inicio");
 }
 
+$("#a-guest").onclick=async()=>{const u=await usuarios();entrar("prueba@aguajusta.co",u["prueba@aguajusta.co"]);borrar(KEY_S);borrar("aguajusta_ultimo");};
 $("#a-switch").onclick=()=>{setModo(modo==="in"?"up":"in");aviso("");};
 $("#a-olvido").onclick=async()=>{
   const c=$("#a-correo").value.trim().toLowerCase(), u=await usuarios();
@@ -635,13 +639,14 @@ $("#f-auth").onsubmit=async e=>{
   e.preventDefault();
   const correo=$("#a-correo").value.trim().toLowerCase(), clave=$("#a-clave").value;
   const u=await usuarios();
+  if(!/^\S+@\S+\.\S+$/.test(correo)) return aviso("Escriba su correo, por ejemplo nombre@correo.com.");
+  if(clave.length<4) return aviso("Escriba su contraseña (mínimo 4 caracteres).");
   if(modo==="in"){
-    // Prototipo: entra siempre. Si el correo está registrado usa ese perfil; si no, el de prueba.
-    const c=u[correo]?correo:"prueba@aguajusta.co";
-    return entrar(c,u[c]);
+    if(!u[correo]){setModo("up");$("#a-correo").value=correo;$("#a-clave").value="";
+      return aviso("No encontramos una cuenta con ese correo. Regístrese para poder entrar.");}
+    if(u[correo].clave!==await cifrar(clave)) return aviso("La contraseña no es correcta. Intente de nuevo.");
+    return entrar(correo,u[correo]);
   }
-  if(!/^\S+@\S+\.\S+$/.test(correo)) return aviso("Escriba un correo válido, por ejemplo nombre@correo.com.");
-  if(clave.length<4) return aviso("La contraseña debe tener al menos 4 caracteres.");
   // Registro
   const nombre=$("#a-nombre").value.trim(), cel=$("#a-cel").value.trim();
   if(!nombre) return aviso("Escriba su nombre.");
