@@ -274,7 +274,7 @@ const ic=(k,s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="no
 
 // ---------- Estado ----------
 let rol="fam", tab="inicio", filtro="Todos", mesSel=9, enviado=null, alertaPub=null, lecturaOk=null;
-let tieneTanque=true, solicitud=null, modo="in";
+let tieneTanque=true, solicitud=null, modo="in", juntaOk=false, juntaErr="";
 const TABS={
   fam:[["inicio","Inicio","home"],["consumo","Consumo","chart"],["tanques","Tanques","tank"],["aprende","Videos","play"],["reportar","Reportar","alert"]],
   jaav:[["panel","Panel","gauge"],["lecturas","Lecturas","chart"],["cortes","Cortes","clock"],["alertas","Avisos","megaphone"],["reportes","Reportes","inbox"]]
@@ -444,12 +444,13 @@ function panel(){
 function lecturas(){
   return `
   <div><div class="kicker">Lectura del contador</div><h2>Lecturas</h2></div>
+  ${!juntaOk?candado("registrar lecturas"):sello()+`
   ${lecturaOk?`<div class="toast">Lectura de ${lecturaOk} guardada.</div>`:""}
   <form class="card" id="f-lec">
     <div class="field"><label for="med">Contador</label><select id="med">${D.lecturas.map(r=>`<option>${r.m} · ${r.u}</option>`).join("")}</select></div>
     <div class="field"><label for="lec">Lectura de hoy (m³)</label><input type="number" id="lec" value="1284.6" step="0.1"></div>
     <button class="btn" type="submit">Guardar lectura</button>
-  </form>
+  </form>`}
   <div class="card"><h3>Consumo por finca</h3><div class="list">
     ${D.lecturas.map(r=>`<div class="row"><div class="l"><b>${r.u}</b><small>${r.m}</small></div><span class="pill ${r.e}">${r.v}</span></div>`).join("")}
   </div></div>`;
@@ -461,9 +462,24 @@ function cortes(){
     ${D.cortes.map(c=>`<div class="row"><div class="l"><b>${c.f} · ${c.h}</b><small>${c.s}</small><div style="font-size:14px;margin-top:4px">${c.c}</div></div></div>`).join("")}
   </div></div>`;
 }
+function candado(que){
+  return `
+  <div class="card" style="background:var(--warn-soft)">
+    <h3>Solo para miembros de la junta</h3>
+    <p class="sub" style="color:var(--ink)">Si usted es miembro de la Junta del acueducto, escriba el código que le dio la junta para ${que}. Si no es miembro, puede ver la información pero no puede hacer registros.</p>
+  </div>
+  <form class="card" id="f-junta">
+    <div class="field"><label for="j-cod">Código de la junta</label><input type="text" id="j-cod" placeholder="Ej.: JUNTA2026" autocomplete="off"></div>
+    ${juntaErr?`<p class="sub" style="color:var(--bad);font-size:14px">${juntaErr}</p>`:""}
+    <button class="btn" type="submit">Ingresar como miembro</button>
+    <p class="sub" style="font-size:12px">Código de prueba: JUNTA2026</p>
+  </form>`;
+}
+const sello=()=>`<span class="pill ok">Miembro de la junta</span>`;
 function alertas(){
   return `
   <div><div class="kicker">Avisos a la vereda</div><h2>Enviar aviso</h2></div>
+  ${!juntaOk?candado("enviar avisos")+`<div class="card"><h3>Últimos avisos enviados</h3><div class="list">${D.cortes.map(c=>`<div class="row"><div class="l"><b>Corte · ${c.f}</b><small>${c.s} · ${c.h}</small></div></div>`).join("")}</div></div>`:sello()+`
   ${alertaPub?`<div class="toast">Aviso enviado por WhatsApp a 86 familias y publicado en la app.</div>`:""}
   <form class="card" id="f-al">
     <div class="field"><label for="al-tipo">Tipo de aviso</label><select id="al-tipo"><option>Corte de agua</option><option>Agua turbia</option><option>Reparación</option><option>Consejo de ahorro</option></select></div>
@@ -471,7 +487,7 @@ function alertas(){
     <div class="field"><label for="al-hora">Horario</label><input type="text" id="al-hora" value="Hoy, de 1:00 a 4:00 p.m."></div>
     <div class="field"><label for="al-causa">¿Por qué?</label><textarea id="al-causa">El tanque de la vereda se vacía cuando muchas fincas riegan en la mañana.</textarea></div>
     <button class="btn" type="submit">Enviar por WhatsApp</button>
-  </form>`;
+  </form>`}`;
 }
 function reportes(){
   return `
@@ -513,6 +529,11 @@ document.addEventListener("submit",e=>{
     enviado={id:"R-0253",v:"viernes 24 de octubre, entre 8:00 y 11:00 a.m."};
     D.reportes.unshift({id:enviado.id,tipo,lugar:$("#lugar").value,f:"hoy",e:"Visita agendada",v:"Visita: viernes 24 de octubre, 8:00–11:00 a.m."});render();window.scrollTo(0,0);}
   if(e.target.id==="f-al"){alertaPub=true;render();}
+  if(e.target.id==="f-junta"){
+    if($("#j-cod").value.trim().toUpperCase().replace(/\s/g,"")==="JUNTA2026"){
+      juntaOk=true;juntaErr="";const u=leer(KEY_U,{});if(u[D.usuario.correo]){u[D.usuario.correo].junta=true;guardar(KEY_U,u);}
+    } else juntaErr="Ese código no es válido. Pídalo al presidente o al fontanero de la junta.";
+    render();}
   if(e.target.id==="f-lec"){lecturaOk=$("#med").value.split(" · ")[1];render();}
   if(e.target.id==="f-tq"){const v=id=>$("#"+id).value.trim();
     solicitud={id:"ALC-2026-1253",muni:v("tq-muni")};render();window.scrollTo(0,0);}
@@ -557,6 +578,7 @@ async function usuarios(){
 }
 function aviso(txt,ok){const er=$("#a-err"),o=$("#a-ok");er.hidden=ok||!txt;o.hidden=!ok||!txt;(ok?o:er).textContent=txt||"";}
 function entrar(correo,u){
+  juntaOk=!!u.junta; juntaErr="";
   D.usuario.nombreCompleto=u.nombre;D.usuario.nombre=u.nombre.split(" ")[0];D.usuario.cel=u.cel;D.usuario.correo=correo;
   guardar(KEY_S,correo); guardar("aguajusta_ultimo",correo); aviso("");
   $("#auth").hidden=true;$("#app").hidden=false;rol="fam";go("inicio");
