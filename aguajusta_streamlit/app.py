@@ -36,4 +36,8 @@ page = f"""<!doctype html>
 </body>
 </html>"""
 
-components.html(page, height=900, scrolling=True)
+# st.iframe es la forma nueva; components.html queda solo para versiones viejas de Streamlit
+if hasattr(st, "iframe"):
+    st.iframe(page, height=900)
+else:
+    components.html(page, height=900, scrolling=True)
